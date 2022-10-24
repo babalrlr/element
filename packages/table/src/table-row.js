@@ -19,7 +19,8 @@ export default {
     'getCellClass',
     'handleCellMouseLeave',
     'handleCellMouseEnter',
-    'fixed'
+    'fixed',
+    'useCutBack'
   ],
   components: {
     ElCheckbox
@@ -36,9 +37,10 @@ export default {
       treeIndent,
       columnsHidden = [],
       isSelected,
-      isExpanded
+      isExpanded,
+      fixed,
+      useCutBack
     } = this;
-
     return (
       <tr>
         {
@@ -48,6 +50,14 @@ export default {
               return null;
             }
             const columnData = { ...column };
+            if (useCutBack) {
+              if (fixed === true || fixed === 'left') {
+                if (columnData.fixed !== true && columnData.fixed !== 'left') return null;
+              } else if (fixed === 'right') {
+                if (columnData.fixed !== 'right') return (<td style={this.getCellStyle($index, cellIndex, row, column)} class={this.getCellClass($index, cellIndex, row, column)} rowspan={rowspan} colspan={colspan} ></td>);
+              }
+            }
+
             columnData.realWidth = this.getColspanRealWidth(columns, colspan, cellIndex);
             const data = {
               store,

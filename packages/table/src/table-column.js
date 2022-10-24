@@ -56,7 +56,9 @@ export default {
       validator(val) {
         return val.every(order => ['ascending', 'descending', null].indexOf(order) > -1);
       }
-    }
+    },
+    fit: Boolean,
+    maxWidth: {}
   },
 
   data() {
@@ -125,6 +127,12 @@ export default {
       }
       if (!column.minWidth) {
         column.minWidth = 80;
+      }
+      if (this.fit) {
+        column.width = column.width || column.minWidth;
+      }
+      if (this.maxWidth) {
+        column.maxWidth = this.maxWidth;
       }
       column.realWidth = column.width === undefined ? column.minWidth : column.width;
       return column;
@@ -221,7 +229,8 @@ export default {
       const props = ['fixed'];
       const aliases = {
         realWidth: 'width',
-        realMinWidth: 'minWidth'
+        realMinWidth: 'minWidth',
+        realMaxWidth: 'maxWidth'
       };
       const allAliases = props.reduce((prev, cur) => {
         prev[cur] = cur;
@@ -265,7 +274,7 @@ export default {
       property: this.prop || this.property,
       align: this.realAlign,
       headerAlign: this.realHeaderAlign,
-      showOverflowTooltip: this.showOverflowTooltip || this.showTooltipWhenOverflow,
+      showOverflowTooltip: this.showOverflowTooltip || this.showTooltipWhenOverflow || parent.useCutBack || this.fit,
       // filter 相关属性
       filterable: this.filters || this.filterMethod,
       filteredValue: [],
@@ -278,7 +287,7 @@ export default {
       index: this.index
     };
 
-    const basicProps = ['columnKey', 'label', 'className', 'labelClassName', 'type', 'renderHeader', 'formatter', 'fixed', 'resizable'];
+    const basicProps = ['columnKey', 'label', 'className', 'labelClassName', 'type', 'renderHeader', 'formatter', 'fixed', 'resizable', 'fit'];
     const sortProps = ['sortMethod', 'sortBy', 'sortOrders'];
     const selectProps = ['selectable', 'reserveSelection'];
     const filterProps = ['filterMethod', 'filters', 'filterMultiple', 'filterOpened', 'filteredValue', 'filterPlacement'];

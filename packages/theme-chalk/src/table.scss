@@ -439,6 +439,7 @@
     display: inline-flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 34px;
     width: 24px;
     vertical-align: middle;
@@ -465,12 +466,28 @@
     }
   }
 
-  .ascending .sort-caret.ascending {
-    border-bottom-color: $--color-primary;
+  .sort-caret-letter {
+    font-size: 12px;
+    line-height: 1;
+    transform: scale(.8);
+    color: $--color-text-placeholder;
   }
 
-  .descending .sort-caret.descending {
-    border-top-color: $--color-primary;
+  .ascending {
+    .sort-caret.ascending {
+      border-bottom-color: $--color-primary;
+    }
+    .sort-caret-letter.ascending {
+      color: $--color-primary;
+    }
+  }
+  .descending {
+    .sort-caret.descending {
+      border-top-color: $--color-primary;
+    }
+    .sort-caret-letter.descending {
+      color: $--color-primary;
+    }
   }
 
   .hidden-columns {

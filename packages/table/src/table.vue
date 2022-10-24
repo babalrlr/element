@@ -38,6 +38,7 @@
         :context="context"
         :store="store"
         :stripe="stripe"
+        :useMemo="useMemo"
         :row-class-name="rowClassName"
         :row-style="rowStyle"
         :highlight="highlightCurrentRow"
@@ -111,6 +112,8 @@
           fixed="left"
           :store="store"
           :stripe="stripe"
+          :useCutBack="useCutBack"
+          :useMemo="useMemo"
           :highlight="highlightCurrentRow"
           :row-class-name="rowClassName"
           :row-style="rowStyle"
@@ -172,6 +175,8 @@
           fixed="right"
           :store="store"
           :stripe="stripe"
+          :useCutBack="useCutBack"
+          :useMemo="useMemo"
           :row-class-name="rowClassName"
           :row-style="rowStyle"
           :highlight="highlightCurrentRow"
@@ -331,7 +336,11 @@
 
       lazy: Boolean,
 
-      load: Function
+      load: Function,
+
+      useCutBack: Boolean,
+
+      useMemo: Boolean
     },
 
     components: {
@@ -484,6 +493,7 @@
           this.layout.updateElsHeight();
         }
         this.layout.updateColumnsWidth();
+        this.layout.updateFitColumnsWidth();
       },
 
       sort(prop, order) {
@@ -493,7 +503,6 @@
       toggleAllSelection() {
         this.store.commit('toggleAllSelection');
       }
-
     },
 
     computed: {
@@ -665,6 +674,10 @@
       });
 
       this.$ready = true;
+
+      this.$watch('data', function() {
+        this.layout.updateFitColumnsWidth();
+      }, { deep: true });
     },
 
     destroyed() {

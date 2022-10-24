@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import scrollbarWidth from 'element-ui/src/utils/scrollbar-width';
+import { getStyle } from 'element-ui/src/utils/dom';
 import { parseHeight } from './util';
 
 class TableLayout {
@@ -216,6 +217,41 @@ class TableLayout {
     }
 
     this.notifyObservers('columns');
+  }
+
+  updateFitColumnsWidth() {
+    Vue.nextTick().then(() => {
+      let columns = this.getFlattenColumns();
+      columns = columns.filter(column => column.fit);
+      if (columns.length === 0) return;
+      const $el = this.table.$el;
+      const wrappersEl = [
+        '.el-table__body-wrapper',
+        '.el-table__fixed-body-wrapper',
+        '.el-table__footer-wrapper',
+        '.el-table__header-wrapper'
+      ].map(klass => $el.querySelector(klass)).filter(el => el);
+      columns.forEach(column => {
+        const cellsEl = wrappersEl.map(el => Array.from(el.querySelectorAll(`.${column.id} .cell`))).flat();
+        column.width = cellsEl.reduce((width, el) => {
+          if (el.childNodes.length > 0) {
+            const range = document.createRange();
+            range.setStart(el, 0);
+            range.setEnd(el, el.childNodes.length);
+            const rangeWidth = range.getBoundingClientRect().width;
+            const padding = (parseInt(getStyle(el, 'paddingLeft'), 10) || 0) + (parseInt(getStyle(el, 'paddingRight'), 10) || 0);
+            let realWidth = rangeWidth + padding + 2; // 1px边框, getColspanRealWidth 默认减1
+            if (column.showOverflowTooltip) {
+              realWidth += 1; // table-column.renderCell 默认减1
+            }
+            width = Math.max(width, realWidth);
+            width = Math.min(width, column.maxWidth || width);
+          }
+          return width;
+        }, column.minWidth);
+      });
+      this.updateColumnsWidth();
+    });
   }
 
   addObserver(observer) {

@@ -1884,6 +1884,8 @@
 | lazy        | 是否懒加载子节点数据 | Boolean | — | — |
 | load        | 加载子节点数据的函数，lazy 为 true 时生效，函数第二个参数包含了节点的层级信息 | Function(row, treeNode, resolve) | — | — |
 | tree-props  | 渲染嵌套数据的配置选项 | Object | — | { hasChildren: 'hasChildren', children: 'children' } |
+| use-memo | 当选中状态发生变化，只重新渲染当前行。需要设置 `row-key` 属性 且 有 `type=selection` 的列才能使用。 | Boolean | — | false |
+| use-cut-back | 裁剪多余的列。需要设置 `fixed` 属性的列才能使用。 | Boolean | — | false |
 
 ### Table Events
 | 事件名 | 说明 | 参数 |
@@ -1936,7 +1938,7 @@
 | min-width | 对应列的最小宽度，与 width 的区别是 width 是固定的，min-width 会把剩余宽度按比例分配给设置了 min-width 的列 | string | — | — |
 | fixed | 列是否固定在左侧或者右侧，true 表示固定在左侧 | string, boolean | true, left, right | — |
 | render-header | 列标题 Label 区域渲染使用的 Function | Function(h, { column, $index }) | — | — |
-| sortable | 对应列是否可以排序，如果设置为 'custom'，则代表用户希望远程排序，需要监听 Table 的 sort-change 事件 | boolean, string | true, false, 'custom' | false |
+| sortable | 对应列是否可以排序，如果设置为 'custom' 或 'ZAndA'（样式有区别），则代表用户希望远程排序，需要监听 Table 的 sort-change 事件。 | boolean, string | true, false, 'custom', 'ZAndA' | false |
 | sort-method | 对数据进行排序的时候使用的方法，仅当 sortable 设置为 true 的时候有效，需返回一个数字，和 Array.sort 表现一致 | Function(a, b) | — | — |
 | sort-by | 指定数据按照哪个属性进行排序，仅当 sortable 设置为 true 且没有设置 sort-method 的时候有效。如果 sort-by 为数组，则先按照第 1 个属性排序，如果第 1 个相等，再按照第 2 个排序，以此类推 | String/Array/Function(row, index) | — | — |
 | sort-orders | 数据在排序时所使用排序策略的轮转顺序，仅当 sortable 为 true 时有效。需传入一个数组，随着用户点击表头，该列依次按照数组中元素的顺序进行排序 | array | 数组中的元素需为以下三者之一：`ascending` 表示升序，`descending` 表示降序，`null` 表示还原为原始顺序 | ['ascending', 'descending', null] |
@@ -1954,6 +1956,8 @@
 | filter-multiple | 数据过滤的选项是否多选 | Boolean | — | true |
 | filter-method | 数据过滤使用的方法，如果是多选的筛选项，对每一条数据会执行多次，任意一次返回 true 就会显示。 | Function(value, row, column) | — | — |
 | filtered-value | 选中的数据过滤项，如果需要自定义表头过滤的渲染方式，可能会需要此属性。 | Array | — | — |
+| fit | 列的宽度自适应内容宽度。 | Boolean | — | false |
+| max-width | 对应列的最大宽度。需要设置 `fit` 属性才能使用。 | string | — | — |
 
 ### Table-column Scoped Slot
 | name | 说明 |

@@ -28,11 +28,18 @@ export default {
     rowClassName: [String, Function],
     rowStyle: [Object, Function],
     fixed: String,
-    highlight: Boolean
+    highlight: Boolean,
+    useCutBack: Boolean,
+    useMemo: Boolean
   },
 
   render(h) {
     const data = this.data || [];
+    const { store, hasExpandColumn, columnsCount, table, treeIndent, columns, firstDefaultColumnIndex,
+      context, columnsHidden, fixed, stripe, useCutBack, useMemo } = this;
+    const that = { store, hasExpandColumn, columnsCount, table, treeIndent, columns, firstDefaultColumnIndex,
+      context, columnsHidden, fixed, stripe, useCutBack, useMemo };
+
     return (
       <table
         class="el-table__body"
@@ -47,7 +54,7 @@ export default {
         <tbody>
           {
             data.reduce((acc, row) => {
-              return acc.concat(this.wrappedRowRender(row, acc.length));
+              return acc.concat(this.wrappedRowRender(row, acc.length, that));
             }, [])
           }
           <el-tooltip effect={this.table.tooltipEffect} placement="top" ref="tooltip" content={this.tooltipContent}></el-tooltip>
@@ -102,6 +109,15 @@ export default {
           addClass(newRow, 'hover-row');
         }
       });
+    },
+    'store.states.data'() {
+      this.$vnodeCache = [];
+    },
+    'store.states.columns': {
+      deep: true,
+      handler() {
+        this.$vnodeCache = [];
+      }
     }
   },
 
@@ -113,11 +129,12 @@ export default {
 
   created() {
     this.activateTooltip = debounce(50, tooltip => tooltip.handleShowPopper());
+    this.$vnodeCache = [];
   },
 
   methods: {
-    getKeyOfRow(row, index) {
-      const rowKey = this.table.rowKey;
+    getKeyOfRow(row, index, that) {
+      const rowKey = that.table.rowKey;
       if (rowKey) {
         return getRowIdentity(row, rowKey);
       }
@@ -156,8 +173,8 @@ export default {
       return { rowspan, colspan };
     },
 
-    getRowStyle(row, rowIndex) {
-      const rowStyle = this.table.rowStyle;
+    getRowStyle(row, rowIndex, that) {
+      const rowStyle = that.table.rowStyle;
       if (typeof rowStyle === 'function') {
         return rowStyle.call(null, {
           row,
@@ -167,16 +184,16 @@ export default {
       return rowStyle || null;
     },
 
-    getRowClass(row, rowIndex) {
+    getRowClass(row, rowIndex, that) {
       const classes = ['el-table__row'];
-      if (this.table.highlightCurrentRow && row === this.store.states.currentRow) {
+      if (that.table.highlightCurrentRow && row === that.store.states.currentRow) {
         classes.push('current-row');
       }
 
-      if (this.stripe && rowIndex % 2 === 1) {
+      if (that.stripe && rowIndex % 2 === 1) {
         classes.push('el-table__row--striped');
       }
-      const rowClassName = this.table.rowClassName;
+      const rowClassName = that.table.rowClassName;
       if (typeof rowClassName === 'string') {
         classes.push(rowClassName);
       } else if (typeof rowClassName === 'function') {
@@ -186,7 +203,7 @@ export default {
         }));
       }
 
-      if (this.store.states.expandRows.indexOf(row) > -1) {
+      if (that.store.states.expandRows.indexOf(row) > -1) {
         classes.push('expanded');
       }
 
@@ -319,10 +336,12 @@ export default {
       }
       table.$emit(`row-${name}`, row, column, event);
     },
-
-    rowRender(row, $index, treeRowData) {
-      const { treeIndent, columns, firstDefaultColumnIndex } = this;
-      const rowClasses = this.getRowClass(row, $index);
+    isRowSelectionChanged(row, selectionMemo, currentSelection, selectableMemo, currentSelectable) {
+      return selectionMemo.indexOf(row) > -1 !== currentSelection.indexOf(row) > -1 || selectableMemo !== currentSelectable;
+    },
+    rowRender(row, $index, treeRowData, that) {
+      const { treeIndent, columns, firstDefaultColumnIndex } = that;
+      const rowClasses = this.getRowClass(row, $index, that);
       let display = true;
       if (treeRowData) {
         rowClasses.push('el-table__row--level-' + treeRowData.level);
@@ -333,11 +352,21 @@ export default {
       let displayStyle = display ? null : {
         display: 'none'
       };
-      return (
+
+      const key = this.getKeyOfRow(row, $index, that);
+      const cached = this.$vnodeCache[key];
+      const { selection: currentSelection, selectable, rowKey } = that.store.states;
+      const selectableMemo = selectable && selectable.call(null, row, $index);
+      if (that.useMemo && rowKey && cached) {
+        if (!this.isRowSelectionChanged(row, cached.$selectionMemo, currentSelection, cached.$selectableMemo, selectableMemo)) return cached;
+      }
+      const selectionMemo = currentSelection.slice();
+
+      const vnode = (
         <TableRow
-          style={[displayStyle, this.getRowStyle(row, $index)]}
+          style={[displayStyle, this.getRowStyle(row, $index, that)]}
           class={rowClasses}
-          key={this.getKeyOfRow(row, $index)}
+          key={key}
           nativeOn-dblclick={($event) => this.handleDoubleClick($event, row)}
           nativeOn-click={($event) => this.handleClick($event, row)}
           nativeOn-contextmenu={($event) => this.handleContextMenu($event, row)}
@@ -346,33 +375,42 @@ export default {
           columns={columns}
           row={row}
           index={$index}
-          store={this.store}
-          context={this.context || this.table.$vnode.context}
+          store={that.store}
+          context={that.context || that.table.$vnode.context}
           firstDefaultColumnIndex={firstDefaultColumnIndex}
           treeRowData={treeRowData}
           treeIndent={treeIndent}
-          columnsHidden={this.columnsHidden}
+          columnsHidden={that.columnsHidden}
           getSpan={this.getSpan}
           getColspanRealWidth={this.getColspanRealWidth}
           getCellStyle={this.getCellStyle}
           getCellClass={this.getCellClass}
           handleCellMouseEnter={this.handleCellMouseEnter}
           handleCellMouseLeave={this.handleCellMouseLeave}
-          isSelected={this.store.isSelected(row)}
-          isExpanded={this.store.states.expandRows.indexOf(row) > -1}
-          fixed={this.fixed}
+          isSelected={that.store.isSelected(row)}
+          isExpanded={that.store.states.expandRows.indexOf(row) > -1}
+          fixed={that.fixed}
+          useCutBack={that.useCutBack}
         >
         </TableRow>
       );
+
+      if (that.useMemo && rowKey && columns.length) {
+        vnode.$selectionMemo = selectionMemo;
+        vnode.$selectableMemo = selectableMemo;
+        this.$vnodeCache[key] = vnode;
+      }
+
+      return vnode;
     },
 
-    wrappedRowRender(row, $index) {
-      const store = this.store;
+    wrappedRowRender(row, $index, that) {
+      const store = that.store;
       const { isRowExpanded, assertRowKey } = store;
       const { treeData, lazyTreeNodeMap, childrenColumnName, rowKey } = store.states;
-      if (this.hasExpandColumn && isRowExpanded(row)) {
-        const renderExpanded = this.table.renderExpanded;
-        const tr = this.rowRender(row, $index);
+      if (that.hasExpandColumn && isRowExpanded(row)) {
+        const renderExpanded = that.table.renderExpanded;
+        const tr = this.rowRender(row, $index, undefined, that);
         if (!renderExpanded) {
           console.error('[Element Error]renderExpanded is required.');
           return tr;
@@ -381,8 +419,8 @@ export default {
         return [[
           tr,
           <tr key={'expanded-row__' + tr.key}>
-            <td colspan={ this.columnsCount } class="el-table__cell el-table__expanded-cell">
-              { renderExpanded(this.$createElement, { row, $index, store: this.store }) }
+            <td colspan={ that.columnsCount } class="el-table__cell el-table__expanded-cell">
+              { renderExpanded(this.$createElement, { row, $index, store }) }
             </td>
           </tr>]];
       } else if (Object.keys(treeData).length) {
@@ -405,7 +443,7 @@ export default {
             treeRowData.loading = cur.loading;
           }
         }
-        const tmp = [this.rowRender(row, $index, treeRowData)];
+        const tmp = [this.rowRender(row, $index, treeRowData, that)];
         // 渲染嵌套数据
         if (cur) {
           // currentRow 记录的是 index，所以还需主动增加 TreeTable 的 index
@@ -439,7 +477,7 @@ export default {
                 }
               }
               i++;
-              tmp.push(this.rowRender(node, $index + i, innerTreeRowData));
+              tmp.push(this.rowRender(node, $index + i, innerTreeRowData, that));
               if (cur) {
                 const nodes = lazyTreeNodeMap[childKey] || node[childrenColumnName];
                 traverse(nodes, cur);
@@ -453,7 +491,7 @@ export default {
         }
         return tmp;
       } else {
-        return this.rowRender(row, $index);
+        return this.rowRender(row, $index, undefined, that);
       }
     }
   }
