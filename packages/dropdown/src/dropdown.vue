@@ -215,15 +215,18 @@
         dropdownElm.addEventListener('keydown', handleItemKeyDown, true); // item keydown
         // 控制自定义元素的样式
         if (!splitButton) {
-          this.triggerElm.addEventListener('focus', () => {
+          this.triggerElm.$focusFn = () => {
             this.focusing = true;
-          });
-          this.triggerElm.addEventListener('blur', () => {
+          };
+          this.triggerElm.addEventListener('focus', this.triggerElm.$focusFn);
+          this.triggerElm.$blurFn = () => {
             this.focusing = false;
-          });
-          this.triggerElm.addEventListener('click', () => {
+          };
+          this.triggerElm.addEventListener('blur', this.triggerElm.$blurFn);
+          this.triggerElm.$clickFn = () => {
             this.focusing = false;
-          });
+          };
+          this.triggerElm.addEventListener('click', this.triggerElm.$clickFn);
         }
         if (trigger === 'hover') {
           this.triggerElm.addEventListener('mouseenter', show);
@@ -288,6 +291,27 @@
           {menuElm}
         </div>
       );
+    },
+
+    beforeDestroy() {
+      this.triggerElm.removeEventListener('keydown', this.handleTriggerKeyDown);
+      this.dropdownElm.removeEventListener('keydown', this.handleItemKeyDown, true);
+      if (!this.splitButton) {
+        this.triggerElm.removeEventListener('focus', this.triggerElm.$focusFn);
+        this.triggerElm.removeEventListener('blur', this.triggerElm.$blurFn);
+        this.triggerElm.removeEventListener('click', this.triggerElm.$clickFn);
+        this.triggerElm.$focusFn = null;
+        this.triggerElm.$blurFn = null;
+        this.triggerElm.$clickFn = null;
+      }
+      if (this.trigger === 'hover') {
+        this.triggerElm.removeEventListener('mouseenter', this.show);
+        this.triggerElm.removeEventListener('mouseleave', this.hide);
+        this.dropdownElm.removeEventListener('mouseenter', this.show);
+        this.dropdownElm.removeEventListener('mouseleave', this.hide);
+      } else if (this.trigger === 'hover') {
+        this.triggerElm.removeEventListener('click', this.handleClick);
+      }
     }
   };
 </script>

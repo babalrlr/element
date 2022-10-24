@@ -162,7 +162,10 @@
         this._closing = true;
 
         this.onClose && this.onClose();
-        messageBox.closeDialog(); // 解绑
+        if (messageBox) {
+          messageBox.closeDialog(); // 解绑
+          messageBox = null;
+        }
         if (this.lockScroll) {
           setTimeout(this.restoreBodyStyle, 200);
         }
@@ -287,11 +290,12 @@
     },
 
     beforeDestroy() {
-      if (this.closeOnHashChange) {
-        window.removeEventListener('hashchange', this.close);
-      }
+      window.removeEventListener('hashchange', this.close);
       setTimeout(() => {
-        messageBox.closeDialog();
+        if (messageBox) {
+          messageBox.closeDialog();
+          messageBox = null;
+        }
       });
     },
 
