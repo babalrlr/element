@@ -194,7 +194,11 @@
         }
         this.action = action;
         if (typeof this.beforeClose === 'function') {
+          window.removeEventListener('hashchange', this.close);
           this.close = this.getSafeClose();
+          if (this.closeOnHashChange) {
+            window.addEventListener('hashchange', this.close);
+          }
           this.beforeClose(action, this, this.close);
         } else {
           this.doClose();

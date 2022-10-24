@@ -80,6 +80,7 @@ const destroyInstance = () => {
     instance.$destroy();
     instance.$el.parentNode.removeChild(instance.$el);
     instance = null;
+    currentMsg = null;
   }
 };
 
