@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import scrollbarWidth from 'element-ui/src/utils/scrollbar-width';
 import { getStyle } from 'element-ui/src/utils/dom';
+import { arrayFlat } from 'element-ui/src/utils/util';
 import { parseHeight } from './util';
 
 class TableLayout {
@@ -232,8 +233,8 @@ class TableLayout {
         '.el-table__header-wrapper'
       ].map(klass => $el.querySelector(klass)).filter(el => el);
       columns.forEach(column => {
-        const cellsEl = wrappersEl.map(el => Array.from(el.querySelectorAll(`.${column.id} .cell`))).flat();
-        column.width = cellsEl.reduce((width, el) => {
+        const cellsEl = wrappersEl.map(el => Array.from(el.querySelectorAll(`.${column.id} .cell`)));
+        column.width = arrayFlat(cellsEl).reduce((width, el) => {
           if (el.childNodes.length > 0) {
             const range = document.createRange();
             range.setStart(el, 0);

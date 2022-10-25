@@ -239,3 +239,15 @@ export function objToArray(obj) {
   }
   return isEmpty(obj) ? [] : [obj];
 }
+
+export const arrayFlat = function(data, depth) {
+  depth = isNaN(depth) ? 1 : Number(depth);
+  return depth ? Array.prototype.reduce.call(data, function(acc, cur) {
+    if (Array.isArray(cur)) {
+      acc.push.apply(acc, arrayFlat(cur, depth - 1));
+    } else {
+      acc.push(cur);
+    }
+    return acc;
+  }, []) : Array.prototype.slice.call(data);
+};
