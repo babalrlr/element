@@ -129,7 +129,7 @@ export default {
         column.minWidth = 80;
       }
       if (this.fit) {
-        column.width = column.width || column.minWidth;
+        column.fitWidth = column.width || column.minWidth;
       }
       if (this.maxWidth) {
         column.maxWidth = this.maxWidth;
@@ -191,7 +191,7 @@ export default {
           };
           if (column.showOverflowTooltip) {
             props.class += ' el-tooltip';
-            props.style = {width: (data.column.realWidth || data.column.width) - 1 + 'px'};
+            props.style = {width: (data.column.realWidth || data.column.width || data.fitWidth) - 1 + 'px'};
           }
           return (<div { ...props }>
             { prefix }

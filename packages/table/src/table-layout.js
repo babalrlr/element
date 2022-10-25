@@ -138,15 +138,15 @@ class TableLayout {
     let bodyMinWidth = 0;
 
     const flattenColumns = this.getFlattenColumns();
-    let flexColumns = flattenColumns.filter((column) => typeof column.width !== 'number');
+    let flexColumns = flattenColumns.filter((column) => typeof column.width !== 'number' && typeof column.fitWidth !== 'number');
 
     flattenColumns.forEach((column) => { // Clean those columns whose width changed from flex to unflex
-      if (typeof column.width === 'number' && column.realWidth) column.realWidth = null;
+      if ((typeof column.width === 'number' || typeof column.fitWidth === 'number') && column.realWidth) column.realWidth = null;
     });
 
     if (flexColumns.length > 0 && fit) {
       flattenColumns.forEach((column) => {
-        bodyMinWidth += column.width || column.minWidth || 80;
+        bodyMinWidth += column.width || column.fitWidth || column.minWidth || 80;
       });
 
       const scrollYWidth = this.scrollY ? this.gutterWidth : 0;
@@ -183,10 +183,10 @@ class TableLayout {
       this.table.resizeState.width = this.bodyWidth;
     } else {
       flattenColumns.forEach((column) => {
-        if (!column.width && !column.minWidth) {
+        if ((!column.width || !column.fitWidth) && !column.minWidth) {
           column.realWidth = 80;
         } else {
-          column.realWidth = column.width || column.minWidth;
+          column.realWidth = column.width || column.fitWidth || column.minWidth;
         }
 
         bodyMinWidth += column.realWidth;
@@ -201,7 +201,7 @@ class TableLayout {
     if (fixedColumns.length > 0) {
       let fixedWidth = 0;
       fixedColumns.forEach(function(column) {
-        fixedWidth += column.realWidth || column.width;
+        fixedWidth += column.realWidth || column.width || column.fitWidth;
       });
 
       this.fixedWidth = fixedWidth;
@@ -211,7 +211,7 @@ class TableLayout {
     if (rightFixedColumns.length > 0) {
       let rightFixedWidth = 0;
       rightFixedColumns.forEach(function(column) {
-        rightFixedWidth += column.realWidth || column.width;
+        rightFixedWidth += column.realWidth || column.width || column.fitWidth;
       });
 
       this.rightFixedWidth = rightFixedWidth;
@@ -223,7 +223,7 @@ class TableLayout {
   updateFitColumnsWidth() {
     Vue.nextTick().then(() => {
       let columns = this.getFlattenColumns();
-      columns = columns.filter(column => column.fit);
+      columns = columns.filter(column => column.fit && typeof column.width !== 'number');
       if (columns.length === 0) return;
       const $el = this.table.$el;
       const wrappersEl = [
@@ -234,7 +234,7 @@ class TableLayout {
       ].map(klass => $el.querySelector(klass)).filter(el => el);
       columns.forEach(column => {
         const cellsEl = wrappersEl.map(el => Array.from(el.querySelectorAll(`.${column.id} .cell`)));
-        column.width = arrayFlat(cellsEl).reduce((width, el) => {
+        column.fitWidth = arrayFlat(cellsEl).reduce((width, el) => {
           if (el.childNodes.length > 0) {
             const range = document.createRange();
             range.setStart(el, 0);

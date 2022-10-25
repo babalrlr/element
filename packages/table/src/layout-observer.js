@@ -46,7 +46,7 @@ export default {
         const name = col.getAttribute('name');
         const column = columnsMap[name];
         if (column) {
-          col.setAttribute('width', column.realWidth || column.width);
+          col.setAttribute('width', column.realWidth || column.width || column.fitWidth);
         }
       }
     },
