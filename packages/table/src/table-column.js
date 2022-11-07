@@ -274,7 +274,7 @@ export default {
       property: this.prop || this.property,
       align: this.realAlign,
       headerAlign: this.realHeaderAlign,
-      showOverflowTooltip: this.showOverflowTooltip || this.showTooltipWhenOverflow || parent.useCutBack || this.fit,
+      showOverflowTooltip: this.showOverflowTooltip || this.showTooltipWhenOverflow || this.fit,
       // filter 相关属性
       filterable: this.filters || this.filterMethod,
       filteredValue: [],
