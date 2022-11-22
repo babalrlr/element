@@ -16,7 +16,7 @@
         <slot name="label">{{label + form.labelSuffix}}</slot>
       </label>
     </label-wrap>
-    <div class="el-form-item__content" :style="contentStyle">
+    <div class="el-form-item__content" :style="contentStyle" @keydown.enter="handleEnter">
       <slot></slot>
       <transition name="el-zoom-in-top">
         <slot
@@ -254,6 +254,36 @@
 
         this.broadcast('ElTimeSelect', 'fieldReset', this.initialValue);
       },
+      activeField() {
+        const nodes = this.$el.querySelectorAll('input,textarea');
+        if (nodes.length) {
+          const node = Array.from(nodes).find(node => node.disabled === false);
+          if (node) {
+            if (['text', 'textarea'].includes(node.type)) {
+              node.click();
+            }
+            node.focus();
+          } else {
+            const nextField = this.getNextField();
+            if (nextField) nextField.activeField();
+          }
+        }
+      },
+      getNextField() {
+        const fields = [];
+        const setFields = (node) => {
+          if (node.$options.name === 'ElFormItem') {
+            fields.push(node);
+          }
+          if (node.$children.length === 0) return;
+          node.$children.forEach(childNode => {
+            setFields(childNode);
+          });
+        };
+        setFields(this.elForm);
+        const fieldIndex = fields.findIndex(field => field === this);
+        return fields[fieldIndex + 1];
+      },
       getRules() {
         let formRules = this.form.rules;
         const selfRules = this.rules;
@@ -286,6 +316,12 @@
         }
 
         this.validate('change');
+      },
+      handleEnter() {
+        this.$nextTick().then(() => {
+          const nextField = this.getNextField();
+          if (nextField) nextField.activeField();
+        });
       },
       updateComputedLabelWidth(width) {
         this.computedLabelWidth = width ? `${width}px` : '';

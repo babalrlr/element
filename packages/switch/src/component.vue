@@ -5,7 +5,6 @@
     role="switch"
     :aria-checked="checked"
     :aria-disabled="switchDisabled"
-    @click.prevent="switchValue"
   >
     <input
       class="el-switch__input"
@@ -17,7 +16,6 @@
       :true-value="activeValue"
       :false-value="inactiveValue"
       :disabled="switchDisabled"
-      @keydown.enter="switchValue"
     >
     <span
       :class="['el-switch__label', 'el-switch__label--left', !checked ? 'is-active' : '']"

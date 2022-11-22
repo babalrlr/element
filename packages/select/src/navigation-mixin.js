@@ -15,6 +15,8 @@ export default {
     hoverIndex(val) {
       if (typeof val === 'number' && val > -1) {
         this.hoverOption = this.options[val] || {};
+      } else {
+        this.hoverOption = -1;
       }
       this.options.forEach(option => {
         option.hover = this.hoverOption === option;

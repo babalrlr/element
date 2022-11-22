@@ -227,6 +227,8 @@
             this.suggestions = [];
             this.highlightedIndex = -1;
           });
+        } else {
+          this.close();
         }
       },
       select(item) {

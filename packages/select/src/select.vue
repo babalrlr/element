@@ -55,6 +55,7 @@
         @keydown.down.prevent="handleNavigate('next')"
         @keydown.up.prevent="handleNavigate('prev')"
         @keydown.enter.prevent="selectOption"
+        @keydown.space.prevent="selectOption"
         @keydown.esc.stop.prevent="visible = false"
         @keydown.delete="deletePrevTag"
         @keydown.tab="visible = false"
@@ -87,6 +88,7 @@
       @keydown.native.down.stop.prevent="handleNavigate('next')"
       @keydown.native.up.stop.prevent="handleNavigate('prev')"
       @keydown.native.enter.prevent="selectOption"
+      @keydown.native.space.prevent="selectOption"
       @keydown.native.esc.stop.prevent="visible = false"
       @keydown.native.tab="visible = false"
       @compositionstart="handleComposition"
@@ -751,12 +753,19 @@
         }
       },
 
-      selectOption() {
-        if (!this.visible) {
-          this.toggleMenu();
-        } else {
-          if (this.options[this.hoverIndex]) {
-            this.handleOptionSelect(this.options[this.hoverIndex]);
+      selectOption(event) {
+        const keyCode = event.keyCode;
+        if (keyCode === 13 && this.multiple) {
+          return this.handleClose();
+        } else if (keyCode === 32 && !this.multiple) {
+          return;
+        }
+        if (this.visible) {
+          const option = this.options[this.hoverIndex];
+          if (option) {
+            this.handleOptionSelect(option);
+          } else {
+            this.handleClose();
           }
         }
       },

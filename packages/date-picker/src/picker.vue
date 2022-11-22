@@ -797,7 +797,6 @@ export default {
           this.pickerVisible = this.picker.visible = false;
           this.blur();
         }
-        event.stopPropagation();
         return;
       }
 
