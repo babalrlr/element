@@ -794,9 +794,9 @@ export default {
       if (keyCode === 13) {
         if (this.userInput === '' || this.isValidValue(this.parseString(this.displayValue))) {
           this.handleChange();
-          this.pickerVisible = this.picker.visible = false;
-          this.blur();
         }
+        this.pickerVisible = this.picker.visible = false;
+        this.blur();
         return;
       }
 
