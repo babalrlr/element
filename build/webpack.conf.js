@@ -4,7 +4,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 const config = require('./config');
-
+const ExitPlugin = require('./webpack-plugins/ExitPlugin');
 module.exports = {
   mode: 'production',
   entry: {
@@ -66,6 +66,7 @@ module.exports = {
   },
   plugins: [
     new ProgressBarPlugin(),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new ExitPlugin()
   ]
 };

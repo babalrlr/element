@@ -4,6 +4,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 const Components = require('../components.json');
 const config = require('./config');
+const ExitPlugin = require('./webpack-plugins/ExitPlugin');
 
 const webpackConfig = {
   mode: 'production',
@@ -61,7 +62,8 @@ const webpackConfig = {
   },
   plugins: [
     new ProgressBarPlugin(),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new ExitPlugin()
   ]
 };
 
