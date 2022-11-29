@@ -273,7 +273,7 @@
         const fields = [];
         const setFields = (node) => {
           if (node.$options.name === 'ElFormItem') {
-            fields.push(node);
+            return fields.push(node);
           }
           if (node.$children.length === 0) return;
           node.$children.forEach(childNode => {
