@@ -755,6 +755,7 @@
 
       selectOption(event) {
         const keyCode = event.keyCode;
+        if (this.isOnComposition) return;
         if (keyCode === 13 && this.multiple) {
           return this.handleClose();
         } else if (keyCode === 32 && !this.multiple) {
