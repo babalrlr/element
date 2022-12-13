@@ -31,6 +31,7 @@
           <i class="el-image-viewer__actions__divider"></i>
           <i class="el-icon-refresh-left" @click="handleActions('anticlocelise')"></i>
           <i class="el-icon-refresh-right" @click="handleActions('clocelise')"></i>
+          <i class="el-icon-printer" @click="handlePrinterClick"></i>
         </div>
       </div>
       <!-- CANVAS -->
@@ -55,6 +56,7 @@
 import { on, off } from 'element-ui/src/utils/dom';
 import { rafThrottle, isFirefox } from 'element-ui/src/utils/util';
 import { PopupManager } from 'element-ui/src/utils/popup';
+import printJS from 'print-js';
 
 const Mode = {
   CONTAIN: {
@@ -309,6 +311,9 @@ export default {
           break;
       }
       transform.enableTransition = enableTransition;
+    },
+    handlePrinterClick() {
+      printJS({ printable: this.currentImg, type: 'image', header: '<style>body{margin:0}</style>' });
     }
   },
   mounted() {
