@@ -762,6 +762,10 @@ export default {
 
     handleKeydown(event) {
       const keyCode = event.keyCode;
+      const ctrlKey = event.ctrlKey;
+      const shiftKey = event.shiftKey;
+      const altKey = event.altKey;
+      const metaKey = event.metaKey;
 
       // ESC
       if (keyCode === 27) {
@@ -792,7 +796,8 @@ export default {
 
       // Enter
       if (keyCode === 13) {
-        if (this.userInput === '' || this.isValidValue(this.parseString(this.displayValue))) {
+        if (ctrlKey || altKey || metaKey) return;
+        if (!shiftKey && (this.userInput === '' || this.isValidValue(this.parseString(this.displayValue)))) {
           this.handleChange();
         }
         this.pickerVisible = this.picker.visible = false;

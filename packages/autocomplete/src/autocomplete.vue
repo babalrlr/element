@@ -218,7 +218,14 @@
         this.activated = false;
       },
       handleKeyEnter(e) {
-        if (this.suggestionVisible && this.highlightedIndex >= 0 && this.highlightedIndex < this.suggestions.length) {
+        const ctrlKey = e.ctrlKey;
+        const shiftKey = e.shiftKey;
+        const altKey = e.altKey;
+        const metaKey = e.metaKey;
+        if (ctrlKey || altKey || metaKey) return;
+        if (shiftKey) {
+          this.close();
+        } else if (this.suggestionVisible && this.highlightedIndex >= 0 && this.highlightedIndex < this.suggestions.length) {
           e.preventDefault();
           this.select(this.suggestions[this.highlightedIndex]);
         } else if (this.selectWhenUnmatched) {

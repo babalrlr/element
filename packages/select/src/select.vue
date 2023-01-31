@@ -755,8 +755,12 @@
 
       selectOption(event) {
         const keyCode = event.keyCode;
-        if (this.isOnComposition) return;
-        if (keyCode === 13 && this.multiple) {
+        const ctrlKey = event.ctrlKey;
+        const shiftKey = event.shiftKey;
+        const altKey = event.altKey;
+        const metaKey = event.metaKey;
+        if (this.isOnComposition || ctrlKey || altKey || metaKey) return;
+        if (keyCode === 13 && (this.multiple || shiftKey)) {
           return this.handleClose();
         } else if (keyCode === 32 && !this.multiple) {
           return;

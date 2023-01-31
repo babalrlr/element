@@ -16,7 +16,7 @@
         <slot name="label">{{label + form.labelSuffix}}</slot>
       </label>
     </label-wrap>
-    <div class="el-form-item__content" :style="contentStyle" @keydown.enter="handleEnter">
+    <div class="el-form-item__content" :style="contentStyle" @keydown="handleEnter">
       <slot></slot>
       <transition name="el-zoom-in-top">
         <slot
@@ -263,13 +263,11 @@
               node.click();
             }
             node.focus();
-          } else {
-            const nextField = this.getNextField();
-            if (nextField) nextField.activeField();
+            return true;
           }
         }
       },
-      getNextField() {
+      moveField(move) {
         const fields = [];
         const setFields = (node) => {
           if (node.$options.name === 'ElFormItem') {
@@ -281,8 +279,19 @@
           });
         };
         setFields(this.elForm);
-        const fieldIndex = fields.findIndex(field => field === this);
-        return fields[fieldIndex + 1];
+        const run = (currentField = this) => {
+          let fieldIndex = fields.findIndex(field => field === currentField);
+          if (move === 'prev') {
+            fieldIndex--;
+          } else {
+            fieldIndex++;
+          }
+          if (fieldIndex < 0 || fieldIndex > fields.length - 1) return;
+          const field = fields[fieldIndex];
+          const active = field.activeField();
+          if (!active) run(field);
+        };
+        run();
       },
       getRules() {
         let formRules = this.form.rules;
@@ -317,10 +326,17 @@
 
         this.validate('change');
       },
-      handleEnter() {
+      handleEnter(event) {
+        const keyCode = event.keyCode;
+        const shiftKey = event.shiftKey;
+        const ctrlKey = event.ctrlKey;
+        const altKey = event.altKey;
+        const metaKey = event.metaKey;
         this.$nextTick().then(() => {
-          const nextField = this.getNextField();
-          if (nextField) nextField.activeField();
+          if (ctrlKey || altKey || metaKey) return;
+          if (keyCode === 13) {
+            this.moveField(shiftKey ? 'prev' : 'next');
+          }
         });
       },
       updateComputedLabelWidth(width) {
