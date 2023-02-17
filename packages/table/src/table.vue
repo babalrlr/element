@@ -472,12 +472,12 @@
         const { width: oldWidth, height: oldHeight } = this.resizeState;
 
         const width = el.offsetWidth;
-        if (oldWidth !== width) {
+        if (width > 0 && oldWidth !== width) {
           shouldUpdateLayout = true;
         }
 
         const height = el.offsetHeight;
-        if ((this.height || this.shouldUpdateHeight) && oldHeight !== height) {
+        if ((this.height || this.shouldUpdateHeight) && height > 0 && oldHeight !== height) {
           shouldUpdateLayout = true;
         }
 
