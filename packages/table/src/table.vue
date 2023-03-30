@@ -469,15 +469,16 @@
         if (!this.$ready) return;
         let shouldUpdateLayout = false;
         const el = this.$el;
+        const contains = document.body.contains(el);
         const { width: oldWidth, height: oldHeight } = this.resizeState;
 
         const width = el.offsetWidth;
-        if (width > 0 && oldWidth !== width) {
+        if (contains && width > 0 && oldWidth !== width) {
           shouldUpdateLayout = true;
         }
 
         const height = el.offsetHeight;
-        if ((this.height || this.shouldUpdateHeight) && height > 0 && oldHeight !== height) {
+        if (contains && height > 0 && (this.height || this.shouldUpdateHeight) && oldHeight !== height) {
           shouldUpdateLayout = true;
         }
 
